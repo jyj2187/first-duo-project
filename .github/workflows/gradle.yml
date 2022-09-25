@@ -18,6 +18,7 @@ permissions:
 
 env:
   S3_BUCKET_NAME: rhinitis-s3
+  RESOURCE_PATH: ./src/main/resources/application.properties
 
 jobs:
   build:
@@ -31,6 +32,19 @@ jobs:
       with:
         java-version: '11'
         distribution: 'temurin'
+        
+        
+    - name: Set Properties
+      uses: microsoft/variable-substitution@v1
+      with:
+        files: ${{ env.RESOURCE_PATH }}
+      env:
+        spring.datasource.url: ${{ secrets.MYSQL_URL }}
+        spring.datasource.username: ${{ secrets.MYSQL_USERNAME }}
+        spring.datasource.password: ${{ secrets.MYSQL_PASSWORD }}
+        cloud.aws.credentials.access-key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        cloud.aws.credentials.secret-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        
     - name: Server Build
       run: |                                        # 개별 실행 옵션, 없으면 29 ~ 35줄까지 모두 한줄에 실행됨
         mkdir -p deploy-server/                     # 압축할 임시 폴더 생성 (deploy-server)
